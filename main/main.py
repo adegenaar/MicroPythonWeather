@@ -24,6 +24,8 @@ def boot():
 
 
 def main():
+    # appid = os.environ.get("OPENWEATHERMAP_APPID")
+    OPENWEATHERMAP_APPID = "d7195c6f01d61693cd3a094e2a771437"
     weather = weather.weather()
     effects = animations.animations()
     radar = rcwl_0516()
@@ -37,51 +39,31 @@ def main():
 
         # if the timer has expired, sleep and wait for the radar to come on
         if time.time() < timer:
-            time.sleep(1)
+            time.sleep(3)
             continue
 
         # retreive the current weather forecast
-        weather.getWeather()
+        weather.getWeather(OPENWEATHERMAP_APPID, "30126")
 
-        # Check forecast codes to make sure none are rain or snow https://developer.yahoo.com/weather/documentation.html
-        flicker = 1
-        if weather in [
-            "24",
-            "26",
-            "27",
-            "28",
-            "29",
-            "30",
-            "31",
-            "32",
-            "33",
-            "34",
-            "36",
-            "44",
-        ]:
-            flicker = 0
+        ani = None
+        if weather.weather == "Thunderstorm":
+            ani = effects.lightning
+        elif weather.weather in ["Rain", "Drizzle", "Squall"]:
+            ani = effects.flicker
 
-        # blue is the default color, followed by gold, followed by red
-        cloud = Colors.blue
-
-        # Subtracts 10% from todays low than checks to see if that is greater than tomorrows low.
-        # If tomorrow is more than 10% colder the cloud should be gold
-        if (int(weather.today_low) - (int(weather.today_low) * 0.1)) > int(
-            weather.next_low
-        ):
+        cloud = Colors.white
+        if weather.current < 40:
+            cloud = Colors.blue
+        elif weather.current < 70:
+            cloud = Colors.green
+        elif weather.current < 80:
             cloud = Colors.gold
-
-        # Adds 10% to todays high than checks to see if that is less than tomorrows high.
-        # If tomorrow is more than 10% hotter cloud should be red
-        if ((int(weather.today_high) * 0.1) + int(weather.today_high)) < int(
-            weather.next_high
-        ):
+        else:
             cloud = Colors.red
 
-        if flicker == 0:
-            effects.setcolor(cloud)  # Solid Red Cloud
-        else:
-            effects.flicker(cloud)
+        effects.setcolor(cloud)
+        if ani:
+            ani()
 
 
 boot()

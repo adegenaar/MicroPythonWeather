@@ -11,8 +11,12 @@
 #       if raining or thunderstorming
 #           flash white
 #
-import json
+# import json
 import time
+import requests
+
+# import os
+# import pprint
 
 
 class weather:
@@ -29,53 +33,94 @@ class weather:
         )  # make sure the first call to getWeather will get the weather
         self.today_high = -1
         self.today_low = -1
+        self.current = -1
         self.next_high = -1
         self.next_low = -1
         self.next_forecast = -1
+        self.timezone = -14400
+        self.sunrise = -1
+        self.sunset = -1
+        self.weather = ""
+
+    # the main weather indicators are:
+    # https://openweathermap.org/weather-conditions
+    # Thunderstorm
+    # Drizzle
+    # Rain
+    # Snow
+    # Mist
+    # Smoke
+    # Haze
+    # Dust
+    # Fog
+    # Sand
+    # Ash
+    # Squall
+    # Tornado
+    # Clear
+    # Clouds
 
     # Gets weather forecast
-    def getWeather(self):
+    def currentWeather(self, appid, zipcode):
+        """
+        {
+            "coord":{"lon":-84.6,"lat":33.83},
+            "weather":[
+                {"id":802,"main":"Clouds","description":"scattered clouds","icon":"03n"}
+                ],
+            "base":"stations",
+            "main":{"temp":73.53,"feels_like":79.66,"temp_min":72,"temp_max":75.2,"pressure":1019,"humidity":94},
+            "visibility":10000,
+            "wind":{"speed":4.21,"deg":72},
+            "clouds":{"all":40},
+            "dt":1598408493,
+            "sys":{"type":1,"id":4155,"country":"US","sunrise":1598353671,"sunset":1598400795},
+            "timezone":-14400,
+            "id":0,
+            "name":"Mableton",
+            "cod":200
+        }
+
+        """
+        res = requests.request(
+            "get",
+            f"""https://api.openweathermap.org/data/2.5/weather?zip={zipcode},us&appid={appid}&units=imperial""",
+        )
+        return res.json()
+
+    def forecast(self, appid, lat, long):
+        res = requests.request(
+            "get",
+            f"""https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&appid={appid}&units=imperial&exclude=current""",
+        )
+        return res.json()
+
+    def getWeather(self, appid, zipcode):
         # Update weather once every self.delay
         if time.time() - self.timer < self.delay:
-            return False
+            return
 
         # update the timer
         timer = time.time()
 
-        # TODO: update to use a different weather service
+        # appid = os.environ.get("OPENWEATHERMAP_APPID")
+        # zipcode = "30126"
+        # pp = pprint.PrettyPrinter(indent=4)
 
-        # Change to your location
-        url = requests.get(
-            'https://query.yahooapis.com/v1/public/yql?q=select item.forecast from weather.forecast where woeid in (select woeid from geo.places(1) where text="sheboygan, wi")&format=json'
-        )
-        global weather
-        weather = json.loads(url.text)
+        weather = self.currentWeather(appid, zipcode)
+        # pp.pprint(weather)
 
-        # Gets todays High and Low
-        self.today_high = weather["query"]["results"]["channel"][0]["item"]["forecast"][
-            "high"
-        ]
-        self.today_low = weather["query"]["results"]["channel"][0]["item"]["forecast"][
-            "low"
-        ]
+        self.weather = weather["weather"]["main"]
+        self.today_high = weather["main"]["temp_max"]
+        self.today_low = weather["main"]["temp_min"]
+        self.current = weather["main"]["temp"]
+        self.timezone = weather["timezone"]
+        self.sunrise = weather["sys"]["sunrise"]
+        self.sunset = weather["sys"]["sunset"]
 
-        # Gets tomorrows High and Low
-        self.next_high = weather["query"]["results"]["channel"][1]["item"]["forecast"][
-            "high"
-        ]
-        self.next_low = weather["query"]["results"]["channel"][1]["item"]["forecast"][
-            "low"
-        ]
-
-        # Get weather code of tomorrows forecast
-        self.next_forecast = weather["query"]["results"]["channel"][1]["item"][
-            "forecast"
-        ]["code"]
-
-        print("updated weather")
-        print("todays high is", int(self.today_high))
-        print("todays low is", int(self.today_low))
-        print("tomorrows code is", int(self.next_forecast))
-        print("next high is", int(self.next_high))
-        print("next low is", int(self.next_low))
-        return True
+        # lat = weather["coord"]["lat"]
+        # lon = weather["coord"]["lon"]
+        # alltheweather = self.forecast(appid, lat, lon)
+        # print("FORECAST")
+        # print("---")
+        # pp.pprint(alltheweather)

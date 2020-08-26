@@ -164,7 +164,7 @@ class animations:
             self.np.write()
             time.sleep_ms(wait)
 
-    def flicker(self, color, step=3, stepsize=10, wait=25):
+    def flicker(self, color=self.np[0], step=3, stepsize=10, wait=25):
         """
         flicker - Animated quick 3 step fade and brighten back to the original color 
 
