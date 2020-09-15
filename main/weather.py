@@ -13,7 +13,7 @@
 #
 # import json
 import time
-import requests
+import urequests
 
 # import os
 # import pprint
@@ -84,14 +84,14 @@ class weather:
         """
         res = requests.request(
             "get",
-            f"""https://api.openweathermap.org/data/2.5/weather?zip={zipcode},us&appid={appid}&units=imperial""",
+            "https://api.openweathermap.org/data/2.5/weather?zip={},us&appid={}&units=imperial".format(zipcode,appid),
         )
         return res.json()
 
     def forecast(self, appid, lat, long):
         res = requests.request(
             "get",
-            f"""https://api.openweathermap.org/data/2.5/onecall?lat={lat}&lon={lon}&appid={appid}&units=imperial&exclude=current""",
+            "https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&appid={}&units=imperial&exclude=current".format(lat,lon,appid),
         )
         return res.json()
 

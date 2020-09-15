@@ -3,18 +3,25 @@ import neopixel
 from machine import Pin
 
 
-class Colors:
-    """
-     pre-built color defintions
-    """
+#class Colors:
+#    """
+##     pre-built color defintions
+#    """
+#
+#    def __init__(self):
+#        self.black = (0, 0, 0)
+#        self.white = (255, 255, 255)
+#        self.red = (255, 0, 0)
+#        self.blue = (0, 0, 255)
+#        self.green = (0, 255, 0)
+#        self.gold = (75, 115, 0)
 
-    def __init__(self):
-        self.black = (0, 0, 0)
-        self.white = (255, 255, 255)
-        self.red = (255, 0, 0)
-        self.blue = (0, 0, 255)
-        self.green = (0, 255, 0)
-        self.gold = (75, 115, 0)
+black=(0, 0, 0)
+white = (255, 255, 255)
+red = (255, 0, 0)
+blue = (0, 0, 255)
+green = (0, 255, 0)
+gold = (75, 115, 0)
 
 
 class animations:
@@ -52,45 +59,45 @@ class animations:
         """
         clear - Convenience function to set the strip to off (0,0,0) 
         """
-        self.setcolor(self.np, Colors.black)
+        self.setcolor(black)
 
-    def cycle(self, color=Colors.white, wait=25):
+    def cycle(self, color=white, wait=25):
         """
         cycle - Sequential single pixel animation 
 
         Args:
-            color (tuple, optional): Color to use for the animated pixel. Defaults to Colors.white.
+            color (tuple, optional): Color to use for the animated pixel. Defaults to white.
             wait (int, optional): time to wait between cycle progressions. Defaults to 25ms.
         """
         n = self.np.n
 
         # cycle
         for i in range(n):
-            self.clear(self.np)
+            self.clear()
             self.np[i % n] = color
             self.np.write()
             time.sleep_ms(wait)
 
-    def bounce(self, color=Colors.white, wait=60):
+    def bounce(self, color=white, wait=60):
         """
         bounce - Opposite of Cycle, one dark pixel cycles around the NeoPixel strip
 
         Args:
-            color (tuple optional): Color for the strip. Defaults to Colors.white.
+            color (tuple optional): Color for the strip. Defaults to white.
             wait (int, optional): Time to wait between cycle progessions. Defaults to 60ms.
         """
         # bounce
         for i in range(4 * self.np.n):
             self.setcolor(color)
             if (i // self.np.n) % 2 == 0:
-                self.np[i % self.np.n] = Colors.black
+                self.np[i % self.np.n] = black
             else:
-                self.np[self.np.n - 1 - (i % self.np.n)] = Colors.black
+                self.np[self.np.n - 1 - (i % self.np.n)] = black
             self.np.write()
             time.sleep_ms(wait)
 
     # TODO: fix this to be more general
-    def fade(self, color=Colors.white):
+    def fade(self, color=white):
         # fade in/out
         for i in range(0, 4 * 256, 8):
             for j in range(self.np.n):
@@ -141,7 +148,7 @@ class animations:
         """
 
         if pos < 0 or pos > 255:
-            return Colors.black
+            return black
         if pos < 85:
             return (255 - pos * 3, pos * 3, 0)
         if pos < 170:
@@ -164,7 +171,7 @@ class animations:
             self.np.write()
             time.sleep_ms(wait)
 
-    def flicker(self, color=self.np[0], step=3, stepsize=10, wait=25):
+    def flicker(self, color=None, step=3, stepsize=10, wait=25):
         """
         flicker - Animated quick 3 step fade and brighten back to the original color 
 
@@ -174,11 +181,14 @@ class animations:
             stepsize (int, optional): how much should the color change at each step. Defaults to 10.
             wait (int, optional): Time in ms between each step. Defaults to 25ms.
         """
+        if color == None:
+            color = self.np[0]
+
         r = color[0]
         g = color[1]
         b = color[2]
 
-        self.setcolor(r, g, b)
+        self.setcolor(tuple(r, g, b))
         time.sleep_ms(wait)
 
         for i in range(step):  # fade down
@@ -191,7 +201,7 @@ class animations:
                 g = 0
             if b < 0:
                 b = 0
-            self.setcolor(r, g, b)
+            self.setcolor(tuple(r, g, b))
             time.sleep_ms(wait)
 
         for i in range(step):  # fade up
@@ -204,7 +214,7 @@ class animations:
                 g = 255
             if b > 255:
                 b = 255
-            self.setcolor(r, g, b)
+            self.setcolor(tuple(r, g, b))
             time.sleep_ms(wait)
 
     def color(self, r, g, b):
@@ -237,7 +247,7 @@ class animations:
         """
         goldFlicker Flicker animation in Gold
         """
-        self.flicker(Colors.gold)
+        self.flicker(gold)
 
     def lightning(self, step=6, wait=25):
         """
@@ -252,9 +262,9 @@ class animations:
         for i in range(
             step
         ):  # flicker rapidly between white, black and the original colors
-            self.setcolor(Colors.white)
+            self.setcolor(white)
             time.sleep_ms(wait)
-            self.setcolor(Colors.black)
+            self.setcolor(black)
             time.sleep_ms(wait)
             for j in range(self.np.n):
                 self.np[j] = strip[j]
@@ -291,14 +301,14 @@ class animations:
         # fade(np)
         self.redFlicker()
         self.blueFlicker()
-        self.flicker(Colors.green)
+        self.flicker(green)
         self.goldFlicker()
 
         self.clear()
         self.rainbow_cycle(60)
         self.lightning()
 
-        colors = [Colors.red, Colors.blue, Colors.green, Colors.gold]
+        colors = [red, blue, green, gold]
         for c in colors:
             self.setcolor(c)
             self.lightning()

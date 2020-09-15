@@ -1,9 +1,9 @@
-import weather
-import animations
-import rcwl_0516
+import main.weather
+import main.animations
+import main.rcwl_0516
 import time
 
-from ota_update.main.ota_updater import OTAUpdater
+from main.ota_updater import OTAUpdater
 
 
 def download_and_install_update_if_available():
@@ -13,7 +13,7 @@ def download_and_install_update_if_available():
     # rtc = machine.RTC()
     # rtc.memory(b'hello')
 
-    o = OTAUpdater("https://github.com/adegenaar/${REPO_NAME}")
+    o = OTAUpdater("https://github.com/adegenaar/MicroPythonWeather")
     o.download_and_install_update_if_available("fred", "yellow:sticky")
 
 
