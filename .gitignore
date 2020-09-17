@@ -173,3 +173,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+#local API and config details
+config.py

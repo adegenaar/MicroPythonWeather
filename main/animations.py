@@ -184,11 +184,13 @@ class animations:
         if color == None:
             color = self.np[0]
 
+
         r = color[0]
         g = color[1]
         b = color[2]
 
-        self.setcolor(tuple(r, g, b))
+        rgb=(r,g,b)
+        self.setcolor(rgb)
         time.sleep_ms(wait)
 
         for i in range(step):  # fade down
@@ -201,7 +203,8 @@ class animations:
                 g = 0
             if b < 0:
                 b = 0
-            self.setcolor(tuple(r, g, b))
+            rgb=(r,g,b)
+            self.setcolor(rgb)
             time.sleep_ms(wait)
 
         for i in range(step):  # fade up
@@ -214,7 +217,8 @@ class animations:
                 g = 255
             if b > 255:
                 b = 255
-            self.setcolor(tuple(r, g, b))
+            rgb=(r,g,b)
+            self.setcolor(rgb)
             time.sleep_ms(wait)
 
     def color(self, r, g, b):

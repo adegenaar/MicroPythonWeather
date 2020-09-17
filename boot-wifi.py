@@ -1,4 +1,5 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
+import config 
 
 # Get out of the UART with mismatched baudrate on the serial
 print("        " * 40 + "\n")
@@ -8,7 +9,7 @@ autoconnect_timeout = 80
 deepsleep_seconds = 2000
 fail_deepsleep = 600
 known_APS = [
-    ["fred", "yellow:sticky"],  # AP1 : SSID of first AP, PW1 passwd for first AP
+    [config.SSID, config.password],  # AP1 : SSID of first AP, PW1 passwd for first AP
     ["AP2", "PW2"],
     ["AP3", "PW3"],
     ["AP4", "PW4"],
@@ -46,6 +47,9 @@ gc.collect()
 time_start = utime.ticks_ms()
 # initiate wifi, done after the callback is set up
 wlan = network.WLAN(network.STA_IF)
+if wlan.active()==False:
+    wlan.active(True)
+
 counter = 0
 # default deepsleep function
 def deepsleep(sleep_time=deepsleep_seconds):
@@ -72,7 +76,7 @@ def cat(Filename):
 # If you connect manually every time it wakes up, you can wear out the flash
 # where the AP info is stored.
 while not wlan.isconnected():
-    print("waiting for autoconnect:" + str(autoconnect_timeout - counter) + "Seconds")
+    print("waiting for autoconnect: " + str(autoconnect_timeout - counter) + " Seconds")
     sleep(1)
     counter += 1
     if counter > autoconnect_timeout:
@@ -86,7 +90,7 @@ while not wlan.isconnected():
     visible_AP = sorted(wlan.scan(), key=lambda sig_str: -sig_str[3])
     print(visible_AP)
     for AP in visible_AP:
-        print("Looking for:" + AP[0].decode())
+        print("Looking for: " + AP[0].decode())
         if AP[0].decode() in str(known_APS):
             for known_AP in known_APS:
                 if AP[0].decode() == known_AP[0]:
@@ -97,7 +101,7 @@ while not wlan.isconnected():
             wlan.connect(known_AP[0], known_AP[1])
             while not wlan.isconnected():
                 print(
-                    "waiting for manual connection:"
+                    "waiting for manual connection: "
                     + str(autoconnect_timeout - counter)
                     + "Seconds"
                 )

@@ -9,14 +9,15 @@
 #   cycle thru the hours (12/16)
 #       bracketed array of temp colors (need Stef's help here)
 #       if raining or thunderstorming
-#           flash white
+#           flicker
 #
 # import json
 import time
-import urequests
+import urequests as requests 
+import ujson as json
 
 # import os
-# import pprint
+import pprint
 
 
 class weather:
@@ -29,7 +30,7 @@ class weather:
         """
         self.delay = delay
         self.timer = (
-            time.time() - delay()
+            time.time() - delay
         )  # make sure the first call to getWeather will get the weather
         self.today_high = -1
         self.today_low = -1
@@ -61,7 +62,7 @@ class weather:
     # Clouds
 
     # Gets weather forecast
-    def currentWeather(self, appid, zipcode):
+    def currentWeather(self, appid, location):
         """
         {
             "coord":{"lon":-84.6,"lat":33.83},
@@ -82,35 +83,47 @@ class weather:
         }
 
         """
-        res = requests.request(
-            "get",
-            "https://api.openweathermap.org/data/2.5/weather?zip={},us&appid={}&units=imperial".format(zipcode,appid),
-        )
+        # res = requests.request(
+        #     "get",
+        #     "https://api.openweathermap.org/data/2.5/weather?q={},us&appid={}&units=imperial".format(location,appid)
+        # )
+        # return res.json()
+
+        res = requests.get("https://api.openweathermap.org/data/2.5/weather?q={}&units=imperial&appid={}".format(location,appid))
+        # ud = res.text
+        # raw = ujson.loads(ud)
+        # t = raw.get('current').get('temp')
+        # w = raw.get('current').get('weather')
+        # print(t)
+        # print(w)
         return res.json()
 
-    def forecast(self, appid, lat, long):
+
+    def forecast(self, appid, lat, lon):
         res = requests.request(
             "get",
             "https://api.openweathermap.org/data/2.5/onecall?lat={}&lon={}&appid={}&units=imperial&exclude=current".format(lat,lon,appid),
         )
         return res.json()
 
-    def getWeather(self, appid, zipcode):
+    def getWeather(self, appid, location):
         # Update weather once every self.delay
         if time.time() - self.timer < self.delay:
             return
 
         # update the timer
-        timer = time.time()
+        self.timer = time.time()
+
+        print ('getweather:' + str(time.localtime()))
 
         # appid = os.environ.get("OPENWEATHERMAP_APPID")
-        # zipcode = "30126"
-        # pp = pprint.PrettyPrinter(indent=4)
+        ##pp = pprint.PrettyPrinter(indent=4)
 
-        weather = self.currentWeather(appid, zipcode)
-        # pp.pprint(weather)
+        weather = self.currentWeather(appid, location)
+        #pprint.pprint(weather)
 
-        self.weather = weather["weather"]["main"]
+        self.weather = weather["weather"][0]["main"]
+        #pprint.pprint(self.weather)
         self.today_high = weather["main"]["temp_max"]
         self.today_low = weather["main"]["temp_min"]
         self.current = weather["main"]["temp"]

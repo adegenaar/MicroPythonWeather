@@ -1,9 +1,9 @@
-import main.weather
-import main.animations
-import main.rcwl_0516
+import weather as Weather
+import animations as animations
+import RCWL_0516 as Radar
 import time
-
-from main.ota_updater import OTAUpdater
+import config
+#from ota_updater import OTAUpdater
 
 
 def download_and_install_update_if_available():
@@ -13,9 +13,9 @@ def download_and_install_update_if_available():
     # rtc = machine.RTC()
     # rtc.memory(b'hello')
 
-    o = OTAUpdater("https://github.com/adegenaar/MicroPythonWeather")
-    o.download_and_install_update_if_available("fred", "yellow:sticky")
-
+#    o = OTAUpdater("https://github.com/adegenaar/MicroPythonWeather")
+#    o.download_and_install_update_if_available(config.SSID, config.password)
+    pass
 
 def boot():
     download_and_install_update_if_available()
@@ -25,41 +25,46 @@ def boot():
 
 def main():
     # appid = os.environ.get("OPENWEATHERMAP_APPID")
-    OPENWEATHERMAP_APPID = "d7195c6f01d61693cd3a094e2a771437"
-    weather = weather.weather()
+    weather = Weather.weather()
     effects = animations.animations()
-    radar = rcwl_0516()
-    radar.begin()
-    timer = time.time() - 3600  # start with the timer off
+    effects.setcolor(animations.black)
 
+    radar = Radar.RCWL_0516()
+    radar.begin(15)
+    timer = time.time() - float(3600)  # start with the timer off
     while True:
         # if the radar is detecting a person, set the timer for 15 minutes
         if radar.isOn():
-            timer = time.time() + 3600 * 15  # 15 minutes
+            timer = time.time() + float(3600 * 15)  # 15 minutes
+        else:
+            pass
 
         # if the timer has expired, sleep and wait for the radar to come on
-        if time.time() < timer:
-            time.sleep(3)
+        if time.time() > timer:
+            if effects.np[0] != animations.black:
+                effects.setcolor(animations.black)
+            time.sleep_ms(50)
             continue
 
         # retreive the current weather forecast
-        weather.getWeather(OPENWEATHERMAP_APPID, "30126")
-
+        weather.getWeather(config.OPENWEATHERMAP_APPID, config.LOCATION)
         ani = None
         if weather.weather == "Thunderstorm":
             ani = effects.lightning
-        elif weather.weather in ["Rain", "Drizzle", "Squall"]:
+        elif weather.weather in ["Rain", "Drizzle", "Squall","Mist"]:
             ani = effects.flicker
 
-        cloud = Colors.white
+        cloud = animations.white
         if weather.current < 40:
-            cloud = Colors.blue
+            cloud = animations.blue
         elif weather.current < 70:
-            cloud = Colors.green
+            cloud = animations.green
         elif weather.current < 80:
-            cloud = Colors.gold
+            cloud = animations.gold        
+        elif weather.current < 90:
+            cloud = (90,0,0)
         else:
-            cloud = Colors.red
+            cloud = animations.red
 
         effects.setcolor(cloud)
         if ani:

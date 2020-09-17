@@ -1,5 +1,6 @@
 # This file is executed on every boot (including wake-boot from deepsleep)
 #
+import sys
 import esp
 #esp.osdebug(None)
 import uos, machine
@@ -8,6 +9,8 @@ import gc
 # import webrepl
 # webrepl.start()
 gc.collect()
+sys.path.append('/main')
+
 
 reasons = {
     0: "Power On Reset",
@@ -25,4 +28,4 @@ print ("Reason for reset: " + reasons.get(machine.reset_cause()))
 print ("Flash size: " + str(esp.flash_size()))
 print ("Free memory: " + str(esp.freemem()))
 
-import main.app 
+import app 

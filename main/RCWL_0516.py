@@ -8,7 +8,7 @@ class RCWL_0516:
     def __init__(self):
         self.pin = None
         self.interrupts = False
-        self._on = self.pin.value()
+        self._on = False
 
     def begin(self, signalPin, useInterrupt=True):
         self.pin = machine.Pin(signalPin, machine.Pin.IN)
@@ -37,6 +37,6 @@ class RCWL_0516:
         last = self._on
         while True:
             if last != self._on:
-                print(f"pin change {self._on}")
+                print("pin change {}".format(self._on))
                 last = self._on
 
